@@ -1,0 +1,250 @@
+openapi: 3.0.3
+info:
+  title: Hezzl API
+  description: API for Hezzl
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/v1
+
+paths:
+  /good/create:
+    post:
+      operationId: CreateProduct
+      summary: Create product
+      description: Creates product with given project id.
+
+      tags:
+        - goods
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+      parameters:
+        - in: query
+          name: projectId
+          schema:
+            type: integer
+          description: Product project Id.
+          required: true
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  x-oapi-codegen-extra-tags:
+                    binding: required,min=1
+              required:
+                - name
+
+
+  /good/update:
+    patch:
+      operationId: UpdateProduct
+      summary: Update existing product
+      description: Updates existing product with given ID.
+      tags:
+        - goods
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+          description: ID of product.
+          required: true
+        - in: query
+          name: projectId
+          schema:
+            type: integer
+          description: Product project ID.
+          required: true
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  x-oapi-codegen-extra-tags:
+                    binding: required,min=1
+                description:
+                  type: string
+              required:
+                - name
+
+  /good/remove:
+    delete:
+      operationId: DeleteProduct
+      summary: Delete product
+      description: Deletes product with given ID.
+      tags:
+        - goods
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  projectId:
+                    type: integer
+                  removed:
+                    type: boolean
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+          description: ID of product.
+          required: true
+        - in: query
+          name: projectId
+          schema:
+            type: integer
+          description: Product project ID.
+          required: true
+
+  /goods/list:
+    get:
+      operationId: GetProducts
+      summary: Get goods list
+      description: Returns goods list
+
+      tags:
+        - goods
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goods'
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          description: Product display limit. Default to 10.
+        - name: offset
+          in: query
+          schema:
+            type: integer
+          description: From which position to display. Default to 0.
+
+  /goods/reprioritize:
+
+    patch:
+      summary: UpdateProductPriority
+      description: Updates product priority with given product id.
+
+      tags:
+        - goods
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  priorities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        priority:
+                          type: integer
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newPriority:
+                  type: integer
+              required:
+                - newPriority
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+          description: Product ID.
+          required: true
+        - in: query
+          name: projectId
+          schema:
+            type: integer
+          description: Project ID.
+          required: true
+
+
+
+components:
+  schemas:
+    Goods:
+      type: object
+      properties:
+        meta:
+          type: object
+          properties:
+            total:
+              type: integer
+            removed:
+              type: integer
+            limit:
+              type: integer
+            offset:
+              type: integer
+        goods:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID of product.
+        projectId:
+          type: integer
+          description: Product project id.
+        name:
+          type: string
+          description: Name of product.
+        description:
+          type: string
+          description: Description of product.
+        priority:
+          type: integer
+          description: Priority of product.
+        removed:
+          type: boolean
+          description: Product deletion status.
+        created_at:
+          type: string
+          description: Product creation date.
+
