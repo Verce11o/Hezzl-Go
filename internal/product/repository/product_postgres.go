@@ -122,21 +122,21 @@ func (p *ProductRepository) GetProductsList(ctx context.Context, limit, offset i
 }
 
 func (p *ProductRepository) UpdateProductPriority(ctx context.Context, productID, projectID, priority int) ([]models.Priority, error) {
+	selectRemainGoodsQuery := "SELECT id FROM goods WHERE id >= $1 AND project_id = $2 ORDER BY id"
+
+	rows, err := p.db.Query(ctx, selectRemainGoodsQuery, productID, projectID)
+	if err != nil {
+		return nil, err
+	}
+
 	tx, err := p.db.Begin(ctx)
 	if err != nil {
 		return nil, err
 	}
+
 	defer tx.Rollback(ctx)
 
 	maxPriority := priority
-	batch := &pgx.Batch{}
-
-	selectRemainGoodsQuery := "SELECT id FROM goods WHERE id >= $1 AND project_id = $2 ORDER BY id"
-
-	rows, err := tx.Query(ctx, selectRemainGoodsQuery, productID, projectID)
-	if err != nil {
-		return nil, err
-	}
 
 	priorities := make([]models.Priority, 0)
 
@@ -147,14 +147,15 @@ func (p *ProductRepository) UpdateProductPriority(ctx context.Context, productID
 			return nil, err
 		}
 
-		batch.Queue("UPDATE goods SET priority = $1 WHERE id = $2 AND project_id = $3", maxPriority, rowProductID, projectID)
+		_, err = tx.Exec(ctx, "UPDATE goods SET priority = $1 WHERE id = $2 AND project_id = $3", maxPriority, rowProductID, projectID)
+
+		if err != nil {
+			return nil, err
+		}
 
 		priorities = append(priorities, models.Priority{ID: rowProductID, Priority: maxPriority})
 		maxPriority++
 	}
-
-	br := p.db.SendBatch(ctx, batch)
-	defer br.Close()
 
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
