@@ -15,8 +15,7 @@ type Config struct {
 }
 
 type Server struct {
-	Host string `yaml:"host" env:"SERVER_HOST" env-default:"localhost"`
-	Port string `yaml:"port" env:"SERVER_PORT" env-default:"3000"`
+	Port string `yaml:"port" env:"SERVER_PORT" env-default:":3000"`
 }
 
 type Postgres struct {
@@ -25,7 +24,7 @@ type Postgres struct {
 	Host     string `yaml:"host" env:"DB_HOST" env-default:"localhost"`
 	Port     string `yaml:"port" env:"DB_PORT" env-default:"5432"`
 	Name     string `yaml:"name" env:"DB_NAME" env-default:"postgres"`
-	SSLMode  bool   `yaml:"ssl_mode" env:"DB_SSL" env-default:"false"`
+	SSLMode  string `yaml:"ssl_mode" env:"DB_SSL" env-default:"false"`
 }
 
 type Redis struct {

@@ -12,8 +12,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	middleware "github.com/oapi-codegen/gin-middleware"
 	"github.com/redis/go-redis/v9"
-	"net"
-
 	"go.uber.org/zap"
 	"log"
 	"net/http"
@@ -34,14 +32,13 @@ func NewServer(log *zap.SugaredLogger, cfg *config.Config, db *pgxpool.Pool, red
 }
 
 func (s *Server) Run(handler http.Handler) error {
-	addr := net.JoinHostPort(s.cfg.Server.Host, s.cfg.Server.Port)
 	s.httpServer = &http.Server{
-		Addr:         addr,
+		Addr:         s.cfg.Server.Port,
 		Handler:      handler,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-	s.log.Infof("Server running on: %v", addr)
+	s.log.Infof("Server running on: %v", s.cfg.Server.Port)
 	return s.httpServer.ListenAndServe()
 }
 
@@ -60,8 +57,6 @@ func (s *Server) InitRoutes() *gin.Engine {
 	productCache := productRepository.NewProductsRedis(s.redis)
 
 	productServices := productService.NewService(s.log, productRepo, productCache, s.publisher)
-
-	//router.GET("/swagger", swagger)
 
 	apiGroup := router.Group("/api/v1")
 

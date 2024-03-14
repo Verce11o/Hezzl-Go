@@ -6,8 +6,8 @@ server:
 
 postgres:
   user: "postgres"
-  password: ""
-  host: "localhost"
+  password: "password"
+  host: "postgres"
   port: "5432"
   name: "postgres"
   ssl_mode: false
@@ -18,3 +18,13 @@ redis:
   port: "6379"
   user : ""
   password: ""
+
+nats:
+  url: "nats:4222"
+
+clickhouse:
+  addr: "clickhouse:19000"
+  database: "default"
+  username: "default"
+  password: ""
+

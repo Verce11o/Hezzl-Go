@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  hezzl-backend:
+    build:
+      context: .
+    image: hezzl:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - backend-network
+
+
+  postgres:
+    container_name: hezzl_postgres
+    image: postgres:latest
+    environment:
+      - "POSTGRES_PASSWORD=password"
+    ports:
+      - "5432:5432"
+    networks:
+      - backend-network
+
+  redis:
+    container_name: hezzl_redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-network
+
+  nats:
+    container_name: hezzl_nats
+    image: nats:latest
+    command: "--js --m 8222"
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+      - "6222:6222"
+    networks:
+      - backend-network
+
+  clickhouse:
+    container_name: hezzl_clickhouse
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - "8123:8123"
+      - "19000:9000"
+    networks:
+      - backend-network
+
+
+networks:
+  backend-network:
+    driver: bridge
