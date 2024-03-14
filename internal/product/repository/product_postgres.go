@@ -98,7 +98,7 @@ func (p *ProductRepository) GetProductByID(ctx context.Context, productID int) (
 }
 
 func (p *ProductRepository) GetProductsList(ctx context.Context, limit, offset int) (models.ProductList, error) {
-	goodsQuery := "SELECT id, project_id, name, description, priority, removed, created_at FROM goods ORDER BY id OFFSET COALESCE(NULLIF($1, 0), 1) LIMIT COALESCE(NULLIF($2, 0), 10)"
+	goodsQuery := "SELECT id, project_id, name, description, priority, removed, created_at FROM goods ORDER BY id OFFSET $1 LIMIT COALESCE(NULLIF($2, 0), 10)"
 	rows, err := p.db.Query(ctx, goodsQuery, offset, limit)
 
 	if err != nil {
@@ -122,6 +122,7 @@ func (p *ProductRepository) GetProductsList(ctx context.Context, limit, offset i
 }
 
 func (p *ProductRepository) UpdateProductPriority(ctx context.Context, productID, projectID, priority int) ([]models.Priority, error) {
+
 	selectRemainGoodsQuery := "SELECT id FROM goods WHERE id >= $1 AND project_id = $2 ORDER BY id"
 
 	rows, err := p.db.Query(ctx, selectRemainGoodsQuery, productID, projectID)
@@ -157,7 +158,7 @@ func (p *ProductRepository) UpdateProductPriority(ctx context.Context, productID
 		maxPriority++
 	}
 
-	if err := tx.Commit(ctx); err != nil {
+	if err = tx.Commit(ctx); err != nil {
 		return nil, err
 	}
 

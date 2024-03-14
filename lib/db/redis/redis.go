@@ -7,7 +7,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func NewRedisClient(cfg *config.Config) *redis.Client {
+func NewRedisClient(ctx context.Context, cfg *config.Config) *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%v:%v", cfg.Redis.Host, cfg.Redis.Port),
 		Password: cfg.Redis.Password,
@@ -15,7 +15,7 @@ func NewRedisClient(cfg *config.Config) *redis.Client {
 		Username: cfg.Redis.User,
 	})
 
-	err := client.Ping(context.Background()).Err()
+	err := client.Ping(ctx).Err()
 
 	if err != nil {
 		panic(err)

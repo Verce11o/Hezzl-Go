@@ -2,15 +2,17 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"github.com/Verce11o/Hezzl-Go/api"
 	"github.com/Verce11o/Hezzl-Go/internal/config"
-	productHandler "github.com/Verce11o/Hezzl-Go/internal/product/handler"
+	productHandler "github.com/Verce11o/Hezzl-Go/internal/product/handler/http/v1"
+	"github.com/Verce11o/Hezzl-Go/internal/product/handler/nats"
 	productRepository "github.com/Verce11o/Hezzl-Go/internal/product/repository"
 	productService "github.com/Verce11o/Hezzl-Go/internal/product/service"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	middleware "github.com/oapi-codegen/gin-middleware"
+	"github.com/redis/go-redis/v9"
+	"net"
 
 	"go.uber.org/zap"
 	"log"
@@ -22,15 +24,17 @@ type Server struct {
 	log        *zap.SugaredLogger
 	cfg        *config.Config
 	db         *pgxpool.Pool
+	redis      *redis.Client
 	httpServer *http.Server
+	publisher  *nats.Publisher
 }
 
-func NewServer(log *zap.SugaredLogger, cfg *config.Config, db *pgxpool.Pool) *Server {
-	return &Server{log: log, cfg: cfg, db: db}
+func NewServer(log *zap.SugaredLogger, cfg *config.Config, db *pgxpool.Pool, redis *redis.Client, publisher *nats.Publisher) *Server {
+	return &Server{log: log, cfg: cfg, db: db, redis: redis, publisher: publisher}
 }
 
 func (s *Server) Run(handler http.Handler) error {
-	addr := fmt.Sprintf("%v:%v", s.cfg.Server.Host, s.cfg.Server.Port)
+	addr := net.JoinHostPort(s.cfg.Server.Host, s.cfg.Server.Port)
 	s.httpServer = &http.Server{
 		Addr:         addr,
 		Handler:      handler,
@@ -53,7 +57,9 @@ func (s *Server) InitRoutes() *gin.Engine {
 	router.Use(middleware.OapiRequestValidator(swagger))
 
 	productRepo := productRepository.NewProductRepository(s.db)
-	productServices := productService.NewService(s.log, productRepo)
+	productCache := productRepository.NewProductsRedis(s.redis)
+
+	productServices := productService.NewService(s.log, productRepo, productCache, s.publisher)
 
 	//router.GET("/swagger", swagger)
 

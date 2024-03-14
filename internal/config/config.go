@@ -6,15 +6,17 @@ import (
 )
 
 type Config struct {
-	Env      string   `yaml:"env"`
-	Server   Server   `yaml:"server"`
-	Postgres Postgres `yaml:"postgres"`
-	Redis    Redis    `yaml:"redis"`
+	Env        string     `yaml:"env"`
+	Server     Server     `yaml:"server"`
+	Postgres   Postgres   `yaml:"postgres"`
+	Redis      Redis      `yaml:"redis"`
+	Nats       Nats       `yaml:"nats"`
+	ClickHouse ClickHouse `yaml:"clickhouse"`
 }
 
 type Server struct {
-	Host string `yaml:"host" env:"HOST" env-default:"localhost"`
-	Port string `yaml:"port" env:"PORT" env-default:"3000"`
+	Host string `yaml:"host" env:"SERVER_HOST" env-default:"localhost"`
+	Port string `yaml:"port" env:"SERVER_PORT" env-default:"3000"`
 }
 
 type Postgres struct {
@@ -32,6 +34,17 @@ type Redis struct {
 	Port     string `yaml:"port" env:"REDIS_PORT" env-default:"6379"`
 	User     string `yaml:"user" env:"REDIS_USER"`
 	Password string `yaml:"Password" env:"REDIS_PASSWORD"`
+}
+
+type Nats struct {
+	Url string `yaml:"url" env:"NATS_URL"`
+}
+
+type ClickHouse struct {
+	Addr     string `yaml:"addr" env:"CLICK_ADDR"`
+	Database string `yaml:"database" env:"CLICK_DATABASE"`
+	Username string `yaml:"username" env:"CLICK_USERNAME"`
+	Password string `yaml:"password" env:"CLICK_PASSWORD"`
 }
 
 func Load() *Config {

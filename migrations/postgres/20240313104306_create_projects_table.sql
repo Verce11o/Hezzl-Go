@@ -3,7 +3,7 @@
 CREATE TABLE IF NOT EXISTS projects (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'utc')
 );
 
 CREATE INDEX idx_project_id ON projects(id);
