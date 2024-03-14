@@ -29,7 +29,6 @@ func NewConsumer(stream jetstream.Stream, log *zap.SugaredLogger, click product.
 
 func (c *Consumer) Consume(ctx context.Context) error {
 	cons, err := c.stream.CreateOrUpdateConsumer(ctx, jetstream.ConsumerConfig{
-		Name:        "ClickHouse",
 		Durable:     "ClickHouse",
 		Description: "Consumer to add data into ClickHouse",
 	})
@@ -45,7 +44,7 @@ func (c *Consumer) Consume(ctx context.Context) error {
 	wg.Add(workers)
 
 	for i := 0; i < workers; i++ {
-		go c.worker(ctx, wg, cons, i)
+		go c.worker(ctx, wg, cons)
 	}
 
 	wg.Wait()
@@ -53,7 +52,7 @@ func (c *Consumer) Consume(ctx context.Context) error {
 	return nil
 }
 
-func (c *Consumer) worker(ctx context.Context, wg *sync.WaitGroup, cons jetstream.Consumer, workerID int) {
+func (c *Consumer) worker(ctx context.Context, wg *sync.WaitGroup, cons jetstream.Consumer) {
 	defer wg.Done()
 
 	_, err := cons.Consume(c.processMessage(ctx))
@@ -82,6 +81,7 @@ func (c *Consumer) processMessage(ctx context.Context) func(msg jetstream.Msg) {
 				return
 			}
 			c.buf = c.buf[:0]
+			return
 		}
 
 		c.buf = append(c.buf, prod)

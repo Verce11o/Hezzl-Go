@@ -3,7 +3,6 @@ package nats
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/Verce11o/Hezzl-Go/internal/models"
 	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
@@ -19,7 +18,7 @@ func NewPublisher(stream jetstream.Stream, js jetstream.JetStream, log *zap.Suga
 	return &Publisher{stream: stream, js: js, log: log}
 }
 
-func (p *Publisher) Publish(ctx context.Context, product models.Product) error {
+func (p *Publisher) Publish(ctx context.Context, product models.Product, action string) error {
 
 	productBytes, err := json.Marshal(product)
 
@@ -28,8 +27,7 @@ func (p *Publisher) Publish(ctx context.Context, product models.Product) error {
 		return err
 	}
 
-	fmt.Println(p.js)
-	_, err = p.js.PublishAsync("GOODS.NEW", productBytes)
+	_, err = p.js.PublishAsync("GOODS."+action, productBytes)
 
 	if err != nil {
 		p.log.Errorf("cannot publish new message to stream: %v", err)

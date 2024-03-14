@@ -43,6 +43,18 @@ func Run(log *zap.SugaredLogger, cfg *config.Config) {
 			log.Fatalf("Error while start server: %v", err)
 		}
 	}()
+	//
+	//for i := 0; i < 100; i++ {
+	//	publisher.Publish(ctx, models.Product{
+	//		ID:          rand.IntN(9999),
+	//		ProjectID:   1,
+	//		Name:        fmt.Sprintf("Test: %d", rand.IntN(9999)),
+	//		Description: "Wow Description",
+	//		Priority:    0,
+	//		Removed:     false,
+	//		CreatedAt:   time.Time{},
+	//	})
+	//}
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)

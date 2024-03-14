@@ -32,7 +32,7 @@ func (s *Service) CreateProduct(ctx context.Context, projectID int, input api.Cr
 		s.log.Errorf("cannot clear redis: %v", err)
 	}
 
-	s.publisher.Publish(ctx, prod)
+	s.publisher.Publish(ctx, prod, "NEW")
 
 	return prod, nil
 }
@@ -55,7 +55,7 @@ func (s *Service) UpdateProduct(ctx context.Context, productID, projectID int, i
 		s.log.Errorf("cannot clear redis: %v", err)
 	}
 
-	s.publisher.Publish(ctx, prod)
+	s.publisher.Publish(ctx, prod, "UPDATE")
 
 	return prod, nil
 }
@@ -67,8 +67,6 @@ func (s *Service) GetProductByID(ctx context.Context, productID int) (models.Pro
 		s.log.Errorf("cannot get product by id: %v", err)
 		return models.Product{}, err
 	}
-
-	s.publisher.Publish(ctx, prod)
 
 	return prod, nil
 }
@@ -91,7 +89,7 @@ func (s *Service) DeleteProduct(ctx context.Context, productID, projectID int) e
 		s.log.Errorf("cannot clear redis: %v", err)
 	}
 
-	s.publisher.Publish(ctx, prod)
+	s.publisher.Publish(ctx, prod, "DELETE")
 	return nil
 }
 
@@ -132,7 +130,7 @@ func (s *Service) UpdateProductPriority(ctx context.Context, productID, projectI
 		return nil, err
 	}
 
-	s.publisher.Publish(ctx, prod)
+	s.publisher.Publish(ctx, prod, "UPDATE")
 
 	return products, nil
 }

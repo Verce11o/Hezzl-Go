@@ -33,13 +33,14 @@ func NewNats(ctx context.Context, cfg *config.Config) *Nats {
 		panic(err)
 	}
 
-	stream, err := js.CreateStream(ctx, jetstream.StreamConfig{
+	stream, err := js.CreateOrUpdateStream(ctx, jetstream.StreamConfig{
 		Name:        streamName,
 		Description: streamDescription,
 		Subjects:    []string{subject},
 		MaxMsgs:     msgAmount,
 		Discard:     jetstream.DiscardNew,
 		Storage:     jetstream.FileStorage,
+		Retention:   jetstream.WorkQueuePolicy,
 	})
 
 	if !errors.Is(err, jetstream.ErrStreamNameAlreadyInUse) && err != nil {
