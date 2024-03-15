@@ -1,8 +1,7 @@
 env: "local"
 
 server:
-  host: "localhost"
-  port: "3000"
+  port: ":3000"
 
 postgres:
   user: "postgres"
@@ -10,11 +9,11 @@ postgres:
   host: "postgres"
   port: "5432"
   name: "postgres"
-  ssl_mode: false
+  ssl_mode: "disable"
 
 redis:
   name: 0
-  host: "localhost"
+  host: "redis"
   port: "6379"
   user : ""
   password: ""
@@ -23,7 +22,7 @@ nats:
   url: "nats:4222"
 
 clickhouse:
-  addr: "clickhouse:19000"
+  addr: "clickhouse:9000"
   database: "default"
   username: "default"
   password: ""
